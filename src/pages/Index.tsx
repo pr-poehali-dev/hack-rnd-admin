@@ -34,8 +34,14 @@ interface Course {
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
   const [courses, setCourses] = useState<Course[]>([]);
-  const [activeSection, setActiveSection] = useState('hero');
   const { toast } = useToast();
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
 
   useEffect(() => {
     const savedUser = localStorage.getItem('user');
@@ -144,13 +150,19 @@ export default function Index() {
             <h1 className="text-2xl font-bold tracking-tight">EduPlatform</h1>
             
             <div className="hidden md:flex items-center gap-8">
-              {['Главная', 'О нас', 'Курсы', 'Преподаватели', 'Блог', 'FAQ', 'Контакты'].map((item) => (
+              {[
+                { name: 'Главная', id: 'hero' },
+                { name: 'Курсы', id: 'courses' },
+                { name: 'О нас', id: 'about' },
+                { name: 'FAQ', id: 'faq' },
+                { name: 'Контакты', id: 'contacts' }
+              ].map((item) => (
                 <button
-                  key={item}
-                  onClick={() => setActiveSection(item.toLowerCase())}
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
                   className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
                 >
-                  {item}
+                  {item.name}
                 </button>
               ))}
             </div>
@@ -172,7 +184,7 @@ export default function Index() {
       </nav>
 
       <main className="pt-20">
-        <section className="py-24 px-6">
+        <section id="hero" className="py-24 px-6">
           <div className="max-w-5xl mx-auto text-center space-y-8">
             <h2 className="text-6xl font-bold tracking-tight leading-tight">
               Образование
@@ -183,7 +195,7 @@ export default function Index() {
               Современная платформа для онлайн-обучения с персональными курсами и квалифицированными преподавателями
             </p>
             <div className="flex items-center justify-center gap-4 pt-4">
-              <Button size="lg" className="rounded-full px-8" onClick={() => setActiveSection('курсы')}>
+              <Button size="lg" className="rounded-full px-8" onClick={() => scrollToSection('courses')}>
                 Начать обучение
               </Button>
               <Button size="lg" variant="outline" className="rounded-full px-8">
@@ -193,27 +205,19 @@ export default function Index() {
           </div>
         </section>
 
-        <section className="py-20 px-6 bg-secondary/30">
+        <section id="courses" className="py-20 px-6 bg-secondary/30">
           <div className="max-w-7xl mx-auto">
             <h3 className="text-4xl font-bold text-center mb-16">Доступные курсы</h3>
             
-            {courses.length === 0 ? (
-              <div className="grid md:grid-cols-3 gap-8">
-                {mockCourses.map((course) => (
-                  <CourseCard key={course.id} course={course} onEnroll={handleEnroll} userLoggedIn={!!user} />
-                ))}
-              </div>
-            ) : (
-              <div className="grid md:grid-cols-3 gap-8">
-                {courses.map((course) => (
-                  <CourseCard key={course.id} course={course} onEnroll={handleEnroll} userLoggedIn={!!user} />
-                ))}
-              </div>
-            )}
+            <div className="grid md:grid-cols-3 gap-8">
+              {courses.map((course) => (
+                <CourseCard key={course.id} course={course} onEnroll={handleEnroll} userLoggedIn={!!user} />
+              ))}
+            </div>
           </div>
         </section>
 
-        <section className="py-20 px-6">
+        <section id="about" className="py-20 px-6">
           <div className="max-w-4xl mx-auto text-center space-y-8">
             <h3 className="text-4xl font-bold">О платформе</h3>
             <p className="text-lg text-muted-foreground font-serif">
@@ -240,7 +244,7 @@ export default function Index() {
           </div>
         </section>
 
-        <section className="py-20 px-6 bg-secondary/30">
+        <section id="faq" className="py-20 px-6 bg-secondary/30">
           <div className="max-w-3xl mx-auto">
             <h3 className="text-4xl font-bold text-center mb-12">Часто задаваемые вопросы</h3>
             <Accordion type="single" collapsible className="space-y-4">
@@ -272,7 +276,7 @@ export default function Index() {
           </div>
         </section>
 
-        <section className="py-20 px-6">
+        <section id="contacts" className="py-20 px-6">
           <div className="max-w-4xl mx-auto text-center space-y-8">
             <h3 className="text-4xl font-bold">Свяжитесь с нами</h3>
             <p className="text-lg text-muted-foreground font-serif">
@@ -445,32 +449,3 @@ function ContactCard({ icon, title, value }: { icon: string; title: string; valu
   );
 }
 
-const mockCourses: Course[] = [
-  {
-    id: 1,
-    title: 'Основы веб-разработки',
-    description: 'Изучите HTML, CSS и JavaScript с нуля',
-    duration: '8 недель',
-    level: 'Начальный',
-    image_url: '',
-    instructor_name: 'Анна Смирнова',
-  },
-  {
-    id: 2,
-    title: 'Python для анализа данных',
-    description: 'Data Science и машинное обучение на практике',
-    duration: '10 недель',
-    level: 'Средний',
-    image_url: '',
-    instructor_name: 'Дмитрий Петров',
-  },
-  {
-    id: 3,
-    title: 'UX/UI Дизайн',
-    description: 'Создавайте удобные и красивые интерфейсы',
-    duration: '6 недель',
-    level: 'Начальный',
-    image_url: '',
-    instructor_name: 'Елена Волкова',
-  },
-];
